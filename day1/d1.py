@@ -1,4 +1,3 @@
-
 def read_calibrations(filename):
     lines = []
     with open(filename) as f:
@@ -8,29 +7,25 @@ def read_calibrations(filename):
     return lines
 
 
-
 def get_calibrations_nums(garbled, num_map):
     calibrated_vals = []
     for line in garbled:
+        # Keep track of the earliest number and the latest number. These default vals should always be overwritten.
+        earliest_index = (len(line), "invalid")
+        latest_index   = (-1, "invalid")
 
-        indexes_of_nums_firsts = {}
-        indexes_of_nums_lasts = {}
-
+        # This loop only updates the earliest or latest number if they come before or after the one stored.
+        # The previous solution looped over the whole line for every key then sorted, keeping the earliest and latest.
         for key in num_map:
-            index_of_key = line.find(key)
-            if  index_of_key > -1:
-                indexes_of_nums_firsts[index_of_key] = num_map[key]
+            index_of_key = line.find(key) 
+            if  index_of_key > -1 and index_of_key < earliest_index[0]:
+                earliest_index = (index_of_key, num_map[key])
             
             index_of_key = line.rfind(key)
-            if  index_of_key > -1:
-                indexes_of_nums_lasts[index_of_key] = num_map[key]
+            if  index_of_key > -1 and index_of_key > latest_index[0]:
+                latest_index = (index_of_key, num_map[key])
 
-        sorted_firsts = sorted(indexes_of_nums_firsts)
-        first = indexes_of_nums_firsts[sorted_firsts[0]]
-        sorted_lasts = sorted(indexes_of_nums_lasts, reverse=True)
-        last = indexes_of_nums_lasts[sorted_lasts[0]]
-
-        calibrated_vals.append(int(first+last))
+        calibrated_vals.append(int(earliest_index[1]+latest_index[1]))
 
     return calibrated_vals
 
@@ -58,12 +53,11 @@ if __name__ == "__main__":
 
     cals = read_calibrations("input")
     cal_vals = get_calibrations_nums(cals, num_map)
-
-    line_num = 1
-    for val in cal_vals:
-        print(f"line {line_num}: {val}")
-        line_num += 1
-
     cal_sum = sum(cal_vals)
+
+    # line_num = 1
+    # for val in cal_vals:
+    #     print(f"line {line_num}: {val}")
+    #     line_num += 1
 
     print(cal_sum)
