@@ -2,58 +2,29 @@ import numpy as np
 import numpy.typing as npt
 
 
-def print_engine(schematic):
-    for line in schematic:
-        for char in line:
-            print(char, end="")
-        print()
-
-
 def read_schematic(filename):
-    """
-    Split the lines up into individual characters and insert them into a numpy array
-    """
     lines = []
     with open(filename) as f:
         for line in f:
-            lines.append([c for c in line.rstrip("\n")])
+            lines.append([str(c) for c in line.rstrip("\n")])
 
     return np.array(lines)
-
-
-def parse_numbers_and_symbols(schematic: np.ndarray[str]):
-    number_locations = {}
-    symbol_locations = {}
-
-    num_mapped_to_indexes = {}
-
-    for row in range(schematic.shape[0]):
-        for col in range(schematic.shape[1]):
-            char = schematic[row, col]
-            if np.char.isdigit(char):
-                number_locations[(row, col)] = char
-            elif char == ".":
-                pass
-            else:
-                symbol_locations[(row, col)] = char
-
-    print(number_locations)
 
 
 def check_if_part(schematic, num_indexes):
 
     valid_chars = "1234567890."
     for row, col in num_indexes:
-        slice = schematic[max(0, row-1):row+2, max(0, col-1):col+2]
+        _slice = schematic[max(0, row-1):row+2, max(0, col-1):col+2]
 
-        for char in slice.flat:
+        for char in _slice.flat:
             if char not in valid_chars:
                 return True
 
     return False
 
 
-def parse_part_numbers(schematic: np.ndarray[np.str_]):
+def parse_part_numbers(schematic: np.ndarray):
     parts = []
     num_chars = ""
     num_chars_indexes = []
@@ -89,11 +60,61 @@ def parse_part_numbers(schematic: np.ndarray[np.str_]):
             col += 1
         row += 1
 
-    print(total_numbers, total_parts)
+    # print(total_numbers, total_parts)
     return parts
+
+
+def parse_part_nums(schematic, location):
+    part_nums = []
+    indexes_checked = []
+
+    def consume_nums(schematic, location):
+        r, c = location
+        indexes_checked.append((r, c))
+        if c < 0 or c >= schematic.shape[1] or schematic[r, c] not in "0123456789":
+            return ""
+        else:
+            L = consume_nums(schematic, (r, c - 1)) if (r, c-1) not in indexes_checked else ""
+            R = consume_nums(schematic, (r, c + 1)) if (r, c+1) not in indexes_checked else ""
+            return L + schematic[r, c] + R
+
+    # Given an index pair as a location, seek left and right to return the whole number
+    row, col = location
+    for i in range(row-1, row+2):
+        for j in range(col-1, col+2):
+            if schematic[i, j] in "0123456789" and (i, j) not in indexes_checked:
+                # parse left and right for full number
+                part_nums.append(int(consume_nums(schematic, (i, j))))
+
+    while len(part_nums) < 2:
+        part_nums.append(0)
+    print(part_nums)
+    return part_nums
+
+
+def parse_for_gears(schematic: np.ndarray):
+    gear_ratios = []
+
+    # Find a symbol
+    for row in range(schematic.shape[0]):
+        for col in range(schematic.shape[1]):
+            char = schematic[row, col]
+            if char not in "0123456789.":  # Symbol found
+                # search for numbers adjacent to a symbol
+                # If there are two numbers adjacent to the symbol, multiply them and track the result as a gear ratio
+                num1, num2 = parse_part_nums(schematic, (row, col))
+                gear_ratios.append(num1 * num2)  # This result is 0 if there's only one part near a symbol
+
+    return gear_ratios
 
 
 schematic = read_schematic("input")
 
-engine_parts = parse_part_numbers(schematic)
-print(sum(engine_parts))
+# First star
+# engine_parts = parse_part_numbers(schematic)
+# print(sum(engine_parts))
+
+# Second star
+gears = parse_for_gears(schematic)
+sum_of_gear_ration = sum(gears)
+print(sum_of_gear_ration)
