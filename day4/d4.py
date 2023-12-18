@@ -51,13 +51,13 @@ def card_copies(cards):
     return copies
 
 
-scratch_cards = read_input("example_input.txt", ignore_chars=7)  # ignore_chars = 10 for real input
+scratch_cards = read_input("input.txt", ignore_chars=10)  # ignore_chars = 10 for real input
 
 # Part 1
-# scores = winning_scores(scratch_cards)
-# print("scores:", scores)
-# print("total_score:", sum(scores))
+scores = winning_scores(scratch_cards)
+print("scores:", scores)
+print("total_score:", sum(scores))
 
 # Part 2
 copies = card_copies(scratch_cards)
-print(copies)
+print("total scratch cards (part 2):", sum(copies.values()))
