@@ -25,60 +25,39 @@ def winning_scores(cards):
 
     return card_scores
 
-def multiples_of_cards(cards):
-    multiples = {}
+
+def card_copies(cards):
+    copies = {}
     for i in range(len(cards)):
-        multiples[i+1] = 0
+        copies[i] = 0
 
-    for card_num in range(1, len(cards)+1):
+    for card_num in range(len(cards)):
         count_winning_nums = 0
-        current_card = cards[card_num-1]
+        current_card = cards[card_num]
         for num in current_card["numbers"]:
             if num in current_card["winning"]:
                 count_winning_nums += 1
 
+        copies[card_num] = copies[card_num] + 1
+        duplicate = copies[card_num]
+        while duplicate > 0:
+            counts = count_winning_nums
+            while counts > 0:
+                if card_num + counts in copies:
+                    copies[card_num + counts] += 1
+                counts -= 1
+            duplicate -= 1
 
-        multiples[card_num] = multiples[card_num] + 1
-        keys = multiples.keys()
-        while count_winning_nums > 0:
-            if card_num + count_winning_nums in keys:
-                multiples[card_num + count_winning_nums] = multiples[card_num + count_winning_nums] + 1
-            count_winning_nums -= 1
-
-
-    return multiples
-
-def expanded_cards(cards):
-    new_card_set = cards.copy()
-
-    # card_iter = iter(new_card_set)
-    # card = next(card_iter)
-    # while card:
-
-    for card_num in range(1, len(cards)+1):
-        count_winning_nums = 0
-        current_card = cards[card_num-1]
-        for num in current_card["numbers"]:
-            if num in current_card["winning"]:
-                count_winning_nums += 1
-
-        new_card_set.append(card_num)
-        while count_winning_nums > 0:
-            if card_num + count_winning_nums < len(cards):
-                new_card_set.append(card_num + count_winning_nums)
-            count_winning_nums -= 1
-
-    return new_card_set
+    return copies
 
 
 scratch_cards = read_input("example_input.txt", ignore_chars=7)  # ignore_chars = 10 for real input
 
 # Part 1
-scores = winning_scores(scratch_cards)
-print("scores:", scores)
-print("total_score:", sum(scores))
+# scores = winning_scores(scratch_cards)
+# print("scores:", scores)
+# print("total_score:", sum(scores))
 
 # Part 2
-new_cards = expanded_cards(scratch_cards)
-for card in new_cards:
-    print(card)
+copies = card_copies(scratch_cards)
+print(copies)
