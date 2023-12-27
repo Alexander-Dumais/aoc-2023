@@ -70,7 +70,7 @@ def max_of_each_game(game_map: Dict[int, List[str]]):
 
 
 if __name__ == "__main__":
-    game_map = decode_games(read_games("input.txt"))
+    game_map = decode_games(read_games("input"))
     configuration = {"red": 12, "green": 13, "blue": 14}  # The day2-1 configuration
 
     valid_games = all_valid_games(game_map, configuration)

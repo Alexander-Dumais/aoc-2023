@@ -6,4 +6,4 @@
 # important for Scala source files, since """ preserves line endings)
 text eol=lf
 
-*.py   eol=lf
+*.py eol=lf
