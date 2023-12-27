@@ -36,12 +36,10 @@ def source_to_destination(s_to_d, target):
     """
     destination = target
     for sd_map in s_to_d:
-        source_range = range(sd_map[1], sd_map[1] + sd_map[2])
-        offset = 0
-        for value in source_range:
-            if target == value:
-                destination = sd_map[0] + offset
-            offset += 1
+        start = sd_map[1]
+        end = sd_map[1] + sd_map[2]
+        if start <= target < end:
+            destination = sd_map[0] + target - start
 
     return destination
 
@@ -69,5 +67,6 @@ while key < len(keys):
     s_to_d_mapping[keys[key]] = [source_to_destination(seed_almanac[keys[key]], i) for i in s_to_d_mapping[keys[key - 1]]]
     key += 1
 
+# Part A complete
 print(s_to_d_mapping["humidity-to-location"])
 print("lowest location:", min(s_to_d_mapping["humidity-to-location"]))
