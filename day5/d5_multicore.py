@@ -104,6 +104,9 @@ def partb_parallel(args):
             if target < _best_so_far:
                 _best_so_far = target
                 print(f"new best location: {_best_so_far}")
+                f = open("results", "a")
+                f.write(str(_best_so_far) + "\n")
+                f.close()
     print(f"Time taken: {time.time() - start_time}")
 
 
