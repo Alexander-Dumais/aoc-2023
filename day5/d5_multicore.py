@@ -1,4 +1,5 @@
 import time
+from multiprocessing import Pool
 
 from helpers.helpers import pairs
 
@@ -86,29 +87,37 @@ def parta():
     print("lowest location:", min(s_to_d_mapping["humidity-to-location"]))
     print("PartA Done\n\n")
 
+def partb_parallel(args):
+    # partb_parallel(almanac, this_range)
+    input_and_keys = ["seed-to-soil", "soil-to-fertilizer", "fertilizer-to-water", "water-to-light",
+                      "light-to-temperature", "temperature-to-humidity", "humidity-to-location"]
+    _best_so_far = 100000000000000000000
+
+    start, steps = args[0]
+    almanac = args[1]
+    print(f"Checking {start} to {start + steps}:")
+    start_time = time.time()
+    for seed in range(start, start + steps):
+        target = seed
+        for step in input_and_keys:
+            target = source_to_destination(almanac[step], target)
+            if target < _best_so_far:
+                _best_so_far = target
+                print(f"new best location: {_best_so_far}")
+    print(f"Time taken: {time.time() - start_time}")
+
 
 def partb():
     # input_and_keys = ("sample_input.txt", [3, 7, 12, 18, 22, 27, 31])
     input_and_keys = ("input", [3, 37, 57, 107, 142, 180, 211])
     seed_almanac = parse_almanac(input_and_keys[0], input_and_keys[1], pair_seeds=True)
 
-    input_and_keys = ["seed-to-soil", "soil-to-fertilizer", "fertilizer-to-water", "water-to-light",
-                      "light-to-temperature", "temperature-to-humidity", "humidity-to-location"]
+    partb_parallel_args = list(zip(list(seed_almanac["seeds"]), [seed_almanac] * 10))
 
-    best_so_far = 100000000000000000000
-    for start, steps in seed_almanac["seeds"]:
-        print(f"Checking {start} to {start+steps}:")
-        start_time = time.time()
-        for seed in range(start, start+steps):
-            target = seed
-            for step in input_and_keys:
-                target = source_to_destination(seed_almanac[step], target)
-                if target < best_so_far:
-                    best_so_far = target
-                    print(f"new best location: {best_so_far}")
-        print(f"Time taken: {time.time() - start_time}")
+    with Pool(10) as p:
+        p.map(partb_parallel, partb_parallel_args)
 
 
-
-# parta()
-partb()
+if __name__ == "__main__":
+    # parta()
+    partb()
