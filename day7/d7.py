@@ -1,4 +1,4 @@
-def read_input(file_name):
+def read_input(file_name, jokers=False):
     hands = []
     with open(file_name, 'r') as f:
         for line in f:
@@ -7,14 +7,17 @@ def read_input(file_name):
     return hands
 
 
-def card_values(cards: [str]):
+def card_values(cards: [str], jokers=False):
     card_vals = []
     for card in cards:
         match card.isdigit():
             case True:
                 card_vals.append(int(card))
             case False:
-                card_vals.append({"T": 10, "J": 11, "Q": 12, "K": 13, "A": 14}[card])
+                if jokers:
+                    card_vals.append({"T": 10, "J": 1, "Q": 12, "K": 13, "A": 14}[card])
+                else:
+                    card_vals.append({"T": 10, "J": 11, "Q": 12, "K": 13, "A": 14}[card])
     return card_vals
 
 
@@ -105,5 +108,19 @@ def part_a(file_name):
         rank += 1
     print(f"total bid value of hands: {total_bid_value}")
 
+def part_b(file_name):
+    hands = read_input(file_name, jokers=True)
 
-part_a('input')
+    ranked_hands = rank_hands(hands)
+    rank = 1
+    total_bid_value = 0
+    for hand, kind in ranked_hands:
+        bid_value = hand['bid'] * rank
+        total_bid_value += bid_value
+        print(f"cards: {hand['cards']} -- kind: {kind[1]} -- bid value: {hand['bid']} * {rank} := {bid_value}")
+        rank += 1
+    print(f"total bid value of hands: {total_bid_value}")
+
+
+part_a('sample_input')
+part_b('sample_input')
